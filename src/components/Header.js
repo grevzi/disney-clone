@@ -1,24 +1,50 @@
 import styled from "styled-components";
 import {auth, provider} from "../firebase";
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
-import {selectUserName, selectUserPhoto, setUserLoginDetail} from "../features/user/userSlice";
+import {selectUserName, selectUserPhoto, setSignOutState, setUserLoginDetail} from "../features/user/userSlice";
+import {useEffect} from "react";
 
 const Header = props => {
     const dispatch = useDispatch();
     const history = useHistory();
     const userName = useSelector(selectUserName)
     const userPhoto = useSelector(selectUserPhoto)
+
+    useEffect(() => {
+        auth.onAuthStateChanged(async user => {
+            if (user) {
+                setUser(user)
+                history.push('/home')
+            }
+        })
+    }, [userName])
+
     const handleAuth = () => {
-        auth.signInWithPopup(provider).then(result => {
-            const {user} = result
-            dispatch(setUserLoginDetail({
-                name: user.displayName,
-                email: user.email,
-                photo: user.photoURL,
-            }))
-        }).catch(error => console.error(error.message))
+        if (!userName) {
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    setUser(result.user)
+                })
+                .catch(error => console.error(error.message))
+        } else {
+            auth.signOut()
+                .then(result => {
+                    dispatch(setSignOutState())
+                    history.push('/')
+                })
+                .catch(error => console.error(error.message))
+        }
     }
+
+    function setUser(user) {
+        dispatch(setUserLoginDetail({
+            name : user.displayName,
+            email: user.email,
+            photo: user.photoURL,
+        }))
+    }
+
     return (
         <Nav>
             <Logo>
@@ -29,38 +55,43 @@ const Header = props => {
                 ? <Login onClick={handleAuth}>Login</Login>
                 :
                 <>
-                <NavMenu>
-                    <a href="/home">
-                        <img src="/images/home-icon.svg" alt="home"/>
-                        <span>HOME</span>
+                    <NavMenu>
+                        <a href="/home">
+                            <img src="/images/home-icon.svg" alt="home"/>
+                            <span>HOME</span>
 
-                    </a>
-                    <a href="/search">
-                        <img src="/images/search-icon.svg" alt="SEARCH"/>
-                        <span>SEARCH</span>
+                        </a>
+                        <a href="/search">
+                            <img src="/images/search-icon.svg" alt="SEARCH"/>
+                            <span>SEARCH</span>
 
-                    </a>
-                    <a href="/watchlist">
-                        <img src="/images/watchlist-icon.svg" alt="WHATCHLIST"/>
-                        <span>WHATCHLIST</span>
+                        </a>
+                        <a href="/watchlist">
+                            <img src="/images/watchlist-icon.svg" alt="WHATCHLIST"/>
+                            <span>WHATCHLIST</span>
 
-                    </a>
-                    <a href="/original">
-                        <img src="/images/original-icon.svg" alt="ORIGINALS"/>
-                        <span>ORIGINALS</span>
+                        </a>
+                        <a href="/original">
+                            <img src="/images/original-icon.svg" alt="ORIGINALS"/>
+                            <span>ORIGINALS</span>
 
-                    </a>
-                    <a href="/movies">
-                        <img src="/images/movie-icon.svg" alt="MOVIES"/>
-                        <span>MOVIES</span>
+                        </a>
+                        <a href="/movies">
+                            <img src="/images/movie-icon.svg" alt="MOVIES"/>
+                            <span>MOVIES</span>
 
-                    </a>
-                    <a href="/series">
-                        <img src="/images/series-icon.svg" alt="SERIES"/>
-                        <span>SERIES</span>
-                    </a>
-                </NavMenu>
-                    <UserImage src={userPhoto} alt={userName} />
+                        </a>
+                        <a href="/series">
+                            <img src="/images/series-icon.svg" alt="SERIES"/>
+                            <span>SERIES</span>
+                        </a>
+                    </NavMenu>
+                    <SignOut>
+                        <UserImage src={userPhoto} alt={userName}/>
+                        <DropDown>
+                            <SignOutButton onClick={handleAuth}>Sign Out</SignOutButton>
+                        </DropDown>
+                    </SignOut>
                 </>
             }
         </Nav>
@@ -167,7 +198,7 @@ const Login = styled.button`
   border: 1px solid #f9f9f9;
   border-radius: 4px;
   transition: all 0.2s ease-out;
-  
+
   &:hover {
     background-color: #f9f9f9;
     color: #000;
@@ -177,6 +208,49 @@ const Login = styled.button`
 
 const UserImage = styled.img`
   height: 100%;
+`
+
+const DropDown = styled.div`
+  position: absolute;
+  top: 48px;
+  right: 0;
+  background-color: rgb(19, 19, 19);
+  border: 1px solid rgba(151, 151, 151, 0.34);
+  border-radius: 4px;
+  box-shadow: rgb(0, 0, 0 / 50%) 0 0 18px 0;
+  padding: 10px;
+  font-size: 14px;
+  letter-spacing: 3px;
+  width: 100px;
+  opacity: 0;
+`
+
+const SignOut = styled.div`
+  position: relative;
+  height: 48px;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ${UserImage} {
+    border-radius: 50%;
+  }
+
+  &:hover {
+    ${DropDown} {
+      opacity: 1;
+      transition: all 0.25s ease-in-out;
+    }
+  }
+`
+
+const SignOutButton = styled.button`
+  cursor: pointer;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: #f9f9f9;
 `
 
 export default Header;
