@@ -1,6 +1,11 @@
 import styled from "styled-components";
+import {useEffect} from "react";
 
 const Login = props => {
+    useEffect(() => {
+        document.title = "Login | Disney Plus"
+    }, []);
+
     return (
         <Container>
             <Content>
