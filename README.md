@@ -1,13 +1,13 @@
-## <a href="https://disneyplus-clone-6ff05.web.app/" target="_blank">LIVE DEMO</a>
+## <a href="https://instagram-clone-759f5.web.app/" target="_blank">LIVE DEMO</a>
 
 ## Description
-This is the ReactJS Disney Plus Clone:
+This is the ReactJS Instagram Clone:
  
 - React js
-
-- Styled Components
-
 - Firebase
+    - db
+    - storage
+    - auth
 
 ## Available Scripts
 
