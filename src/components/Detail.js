@@ -20,7 +20,10 @@ const Detail = props => {
             .catch(error => console.error(error.message))
     }, [id])
 
-    console.log(detailData);
+    useEffect(() => {
+        if(!detailData) return
+        document.title = `${detailData?.title} | Disney Plus`
+    }, [detailData]);
 
     if (!detailData) return (
         <Container>Loading...</Container>

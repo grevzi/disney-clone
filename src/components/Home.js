@@ -25,15 +25,19 @@ const Home = props => {
                 switch (doc.data().type) {
                     case 'recommend':
                         recommends = [...recommends, {id: doc.id, ...doc.data()}]
+                        return recommends
                         break;
                     case 'new':
                         newDisneys = [...newDisneys, {id: doc.id, ...doc.data()}]
+                        return newDisneys
                         break;
                     case 'original':
                         originals = [...originals, {id: doc.id, ...doc.data()}]
+                        return originals
                         break;
                     case 'trending':
                         trendings = [...trendings, {id: doc.id, ...doc.data()}]
+                        return trendings
                         break;
                 }
             })
@@ -47,6 +51,10 @@ const Home = props => {
         })
 
     }, [userName])
+
+    useEffect(() => {
+        document.title = "Home | Disney Plus"
+    }, []);
 
     return (
         <Container>
